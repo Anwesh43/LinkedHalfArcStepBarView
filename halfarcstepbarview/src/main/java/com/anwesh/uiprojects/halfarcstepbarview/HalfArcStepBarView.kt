@@ -199,4 +199,26 @@ class HalfArcStepBarView(ctx : Context) : View(ctx) {
             curr.startUpdating(cb)
         }
     }
+
+    data class Renderer(var view : HalfArcStepBarView) {
+
+        private val animator : Animator = Animator(view)
+        private val hasb : HalfArcStepBar = HalfArcStepBar(0)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(backColor)
+            hasb.draw(canvas, paint)
+            animator.animate {
+                hasb.update {i, scl ->
+                    animator.stop()
+                }
+            }
+        }
+
+        fun handleTap() {
+            hasb.startUpdating {
+                animator.start()
+            }
+        }
+    }
 }
