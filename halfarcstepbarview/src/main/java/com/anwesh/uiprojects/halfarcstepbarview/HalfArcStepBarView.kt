@@ -21,6 +21,7 @@ val strokeFactor : Int = 90
 val sizeFactor : Float = 2.9f
 val foreColor : Int = Color.parseColor("#283593")
 val backColor : Int = Color.parseColor("#BDBDBD")
+val delay : Long = 20
 
 fun Int.inverse() : Float = 1f / this
 fun Float.scaleFactor() : Float = Math.floor(this / scDiv).toFloat()
@@ -40,7 +41,7 @@ fun Canvas.drawBar(i : Int, sc : Float, size : Float, paint : Paint) {
     val wBar : Float = (2 * size) / (2 * bars + 1)
     val sci : Float = sc.divideScale(i, bars)
     save()
-    translate(wBar * (i + 1), 0f)
+    translate(wBar * (2 * i + 1) - size + wBar / 2, 0f)
     drawRect(RectF(-wBar / 2, -size * sci, wBar / 2, 0f), paint)
     restore()
 }
@@ -112,7 +113,7 @@ class HalfArcStepBarView(ctx : Context) : View(ctx) {
             if (animated) {
                 cb()
                 try {
-                    Thread.sleep(50)
+                    Thread.sleep(delay)
                     view.invalidate()
                 } catch(ex : Exception) {
 
@@ -140,7 +141,7 @@ class HalfArcStepBarView(ctx : Context) : View(ctx) {
         private var prev : HASBNode? = null
 
         init {
-
+            addNeighbor()
         }
 
         fun addNeighbor() {
@@ -153,7 +154,7 @@ class HalfArcStepBarView(ctx : Context) : View(ctx) {
 
         fun draw(canvas : Canvas, paint : Paint) {
             canvas.drawHASBNode(i, state.scale, paint)
-            next?.draw(canvas, paint)
+            prev?.draw(canvas, paint)
         }
 
         fun update(cb : (Int, Float) -> Unit) {
@@ -181,12 +182,11 @@ class HalfArcStepBarView(ctx : Context) : View(ctx) {
 
     data class HalfArcStepBar(var i : Int) {
 
-        private val root : HASBNode = HASBNode(0)
-        private var curr : HASBNode = root
+        private var curr : HASBNode = HASBNode(0)
         private var dir : Int = 1
 
         fun draw(canvas : Canvas, paint : Paint) {
-            root.draw(canvas, paint)
+            curr.draw(canvas, paint)
         }
 
         fun update(cb : (Int, Float) -> Unit) {
